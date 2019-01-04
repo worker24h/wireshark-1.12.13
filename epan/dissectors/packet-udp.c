@@ -426,8 +426,12 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       return;
     }
   }
-
-  call_dissector(data_handle,next_tvb, pinfo, tree);
+  #define FLANNEL_UDP_PORT 8285
+  if (uh_dport == FLANNEL_UDP_PORT) {//flannel ¶Ë¿Ú
+    call_dissector(find_dissector("ip"), next_tvb, pinfo, tree);
+  } else {
+    call_dissector(data_handle,next_tvb, pinfo, tree);
+  }  
 }
 
 
@@ -764,13 +768,13 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                      udph->uh_ulen);
 }
 
-static void
+void
 dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect(tvb, pinfo, tree, IP_PROTO_UDP);
 }
 
-static void
+void
 dissect_udplite(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect(tvb, pinfo, tree, IP_PROTO_UDPLITE);
